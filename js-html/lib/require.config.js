@@ -3,7 +3,7 @@
 require.config({
     baseUrl: "lib/",
     paths: {
-        "iio": "deps/iioengine/core/iioEngine.min",
+        "iio": "deps/iioengine/iio-1.4.0.min",
         "main": "app/main"
     },
     waitSeconds: 15
