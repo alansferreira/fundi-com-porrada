@@ -56,7 +56,9 @@ function main(app, settings) {
         }
     }
     app.onKeyDown = function (event, key) {
-
+        input.update(key, true);
+        if (input.isLeft(key)) player.walkLeft();
+        if (input.isRight(key)) player.walkRight();
     };
 
     // commonChar object properties
@@ -78,14 +80,42 @@ function main(app, settings) {
     }));
 
     //// add a red quad
-    //var player = app.add(new iio.Quad(commonChar, {
-    //    color: 'red',
-    //    pos: [
-    //      (app.width / 2) - commonChar.width,
-    //      app.center.y,
-    //    ],
-    //}));
+    var player = app.add(new iio.Quad(commonChar, {
+        color: 'red',
+        speed: 1, 
+        pos: [
+          (app.width / 2) - commonChar.width,
+          app.center.y + 60,
+        ],// make mario walk left
+        walkLeft: function () {
+            this.set({
+                flip: 'x',
+                walking: true,
+                vel: [-this.speed, 0],
+            });
+        },
+        // make mario walk right
+        walkRight: function () {
+            this.set({
+                flip: false,
+                walking: true,
+                vel: [this.speed, 0],
+            });
+        },
+    }));
 
+    var enemyT1 = function () {
+        var side = iio.randomInt(0, 1);
+
+        return new iio.Quad(commonChar, {
+            color: 'black',
+            speed: 1,
+            vel: [(side == 0 ? 1 : -1), 0],
+            pos: [(side == 0 ? -commonChar.width : app.width), app.center.y + 60],
+        });
+    };
+
+    app.add(new enemyT1());
 
     //// add a collision callback
     //app.collision(square0, square1,
