@@ -111,7 +111,7 @@ function main(app, settings) {
             color: 'black',
             speed: 1,
             vel: [(side == 0 ? 1 : -1), 0],
-            pos: [(side == 0 ? (-commonChar.width+400) : app.width-400), app.center.y + 60],
+            pos: [(side == 0 ? (-commonChar.width+600) : app.width-600), app.center.y + 60],
         });
     };
 
@@ -122,7 +122,10 @@ function main(app, settings) {
         // add a collision callback
         app.collision(player, enemy,
           function (p, e) {
-              e.vel = 0;
+              app.rmv(e);
+
+              addEnemy(enemyT1);
+
               //// switch object velocities
               //var temp = p.vel;
               //p.vel = e.vel;
