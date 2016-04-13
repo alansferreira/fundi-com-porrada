@@ -10,6 +10,10 @@ require(["iio"], function () {
 function main(app, settings) {
     // Create a loader with a base path at ".assets"
     var loader = new iio.Loader('assets');
+    var VIEW_LEFT = 'left';
+    var VIEW_RIGHT = 'right';
+    var COLOR_NORMAL = 'green';
+    var COLOR_PUNCHING = 'red';
 
     var oWidth = 15;
     var oSpeed = .8;
@@ -57,21 +61,18 @@ function main(app, settings) {
     }
     app.onKeyDown = function (event, key) {
         input.update(key, true);
-        if (input.isLeft(key)) player.walkLeft();
-        if (input.isRight(key)) player.walkRight();
+        player.doPunch(input.isLeft(key) ? 'left' : 'right');
+    };
+    app.onKeyUp = function (event, key) {
+        input.update(key, true);
+        player.releasePunch();
+        //if (input.isLeft(key)) player.walkLeft();
+        //if (input.isRight(key)) player.walkRight();
     };
 
     // commonChar object properties
     var commonChar = {
-        width: oWidth * 2,
-        bounds: {
-            left: {
-                bound: 0,
-            },
-            right: {
-                bound: app.width,
-            },
-        }
+        width: oWidth * 2
     }
     
     var background = app.add(new iio.Quad({
@@ -81,27 +82,26 @@ function main(app, settings) {
 
     //// add a red quad
     var player = app.add(new iio.Quad(commonChar, {
-        color: 'red',
+        view: 'right',
+        color: COLOR_NORMAL,
         speed: 1, 
         pos: [
           (app.width / 2) - commonChar.width,
           app.center.y + 60,
-        ],// make mario walk left
-        walkLeft: function () {
+        ],
+        doPunch: function (side) {
             this.set({
-                flip: 'x',
-                walking: true,
-                vel: [-this.speed, 0],
+                punching: true,
+                color: COLOR_PUNCHING
             });
         },
-        // make mario walk right
-        walkRight: function () {
+        releasePunch: function () {
             this.set({
-                flip: false,
-                walking: true,
-                vel: [this.speed, 0],
+                punching: false,
+                color: COLOR_NORMAL,
+
             });
-        },
+        }
     }));
 
     var enemyT1 = function () {
@@ -111,22 +111,33 @@ function main(app, settings) {
             color: 'black',
             speed: 1,
             vel: [(side == 0 ? 1 : -1), 0],
-            pos: [(side == 0 ? -commonChar.width : app.width), app.center.y + 60],
+            pos: [(side == 0 ? (-commonChar.width+400) : app.width-400), app.center.y + 60],
         });
     };
 
-    app.add(new enemyT1());
 
-    //// add a collision callback
-    //app.collision(square0, square1,
-    //  function (s0, s1) {
-    //      // switch object velocities
-    //      var temp = s0.vel;
-    //      s0.vel = s1.vel;
-    //      s1.vel = temp;
-    //      // reverse rotational velocities
-    //      reverse(s0, 'rVel');
-    //      reverse(s1, 'rVel');
-    //  });
+    function addEnemy(typeProto) {
+        var enemy = new typeProto();
+
+        // add a collision callback
+        app.collision(player, enemy,
+          function (p, e) {
+              e.vel = 0;
+              //// switch object velocities
+              //var temp = p.vel;
+              //p.vel = e.vel;
+              //e.vel = temp;
+              //// reverse rotational velocities
+              //reverse(p, 'rVel');
+              //reverse(e, 'rVel');
+          });
+
+        app.add(enemy);
+    };
+
+
+    addEnemy(enemyT1);
+
+
 
 }
